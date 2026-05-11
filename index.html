@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLFFY: Die With A Smile - Lady Gaga & Bruno Mars</title>
+    <!-- Fonts: Retro TV, Elegant Soul, Clean UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Outfit:wght@300;400;600;800;900&family=Space+Mono:wght@400;700&family=Rye&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        studio: {
+                            navy: '#0b132b',     /* Deep TV Studio Blue */
+                            blue: '#1c2541',     /* Medium Retro Blue */
+                            red: '#9b2226',      /* Vintage Cherry Red */
+                            gold: '#fca311',     /* Stage Gold */
+                            cream: '#fdf0d5',    /* Off-white text */
+                            black: '#050505'     /* Screen Black */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        display: ['"Playfair Display"', 'serif'],
+                        mono: ['"Space Mono"', 'monospace'],
+                        retro: ['"Rye"', 'cursive']
+                    },
+                    boxShadow: {
+                        'tv': 'inset 0 0 60px rgba(0,0,0,0.9), 0 20px 50px rgba(0,0,0,0.8)',
+                        'neon-gold': '0 0 15px rgba(252, 163, 17, 0.4), inset 0 0 10px rgba(252, 163, 17, 0.2)',
+                        'dial': '0 4px 6px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base & Resets */
+        body { background-color: #050505; color: #fdf0d5; overflow: hidden; font-family: 'Outfit', sans-serif; user-select: none; }
+        .allow-select { user-select: text; }
+
+        /* Stage Spotlight Background */
+        .stage-bg { 
+            position: fixed; inset: 0; pointer-events: none; z-index: 0; 
+            background: radial-gradient(circle at 15% 20%, rgba(28, 37, 65, 0.4) 0%, transparent 50%),
+                        radial-gradient(circle at 85% 80%, rgba(155, 34, 38, 0.15) 0%, transparent 50%);
+            animation: pulseBg 10s infinite alternate ease-in-out;
+        }
+        @keyframes pulseBg { 0% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        /* Record Player Animations */
+        .vinyl-spin { animation: spin 4s linear infinite; }
+        .vinyl-paused { animation-play-state: paused !important; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* THE RETRO TV SCREEN */
+        .retro-tv {
+            background-color: #080b12;
+            position: relative;
+            background-image: 
+                radial-gradient(rgba(252, 163, 17, 0.03) 1px, transparent 1px),
+                radial-gradient(rgba(252, 163, 17, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+        .retro-tv::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.2) 100%);
+            pointer-events: none; z-index: 10;
+        }
+        /* CRT Scanlines */
+        .retro-tv::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none; z-index: 11;
+        }
+
+        /* Slide Navigation */
+        .slide { display: none; opacity: 0; width: 100%; min-height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+        .slide.active { display: flex; animation: tvTurnOn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .slide::before, .slide::after { content: ''; margin: auto; }
+        .slide > * { flex-shrink: 0; max-width: 100%; z-index: 20; }
+        
+        @keyframes tvTurnOn { 
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); filter: brightness(0.2) contrast(1.5); } 
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1) contrast(1); } 
+        }
+
+        /* UI Elements */
+        .glass-panel { background: rgba(28, 37, 65, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(253, 240, 213, 0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.05); border-radius: 16px; }
+        
+        /* Vintage Chunky Buttons */
+        .chunky-btn { background: linear-gradient(to bottom, #2a3556, #1c2541); border: 2px solid #0b132b; border-bottom: 4px solid #050505; color: #fdf0d5; transition: all 0.1s; }
+        .chunky-btn:active { transform: translateY(2px); border-bottom: 2px solid #050505; background: #1c2541; }
+        .chunky-btn:hover:not(:disabled) { border-color: #fca311; }
+        
+        /* MCQ Buttons */
+        .mcq-btn { transition: all 0.2s ease; border-left: 6px solid transparent; background: #0b132b; cursor: pointer; border-radius: 12px;}
+        .mcq-btn:hover { border-color: #fca311; background: #1c2541; transform: translateX(5px); box-shadow: inset 2px 0 10px rgba(252,163,17,0.1); }
+
+        .lyric-highlight { color: #fca311; font-weight: 900; font-family: 'Playfair Display', serif; font-style: italic; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; padding: 0 4px; }
+        .lyric-highlight:hover { border-color: #fca311; background: rgba(252, 163, 17, 0.1); border-radius: 4px; text-shadow: 0 0 10px rgba(252, 163, 17, 0.5);}
+
+        /* Vintage Cue Cards (Vocab) */
+        .cue-card { background: #fdf0d5; color: #0b132b; padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: all 0.3s; border-radius: 4px; border: 1px solid #d4c4a8; box-shadow: 4px 4px 0px rgba(0,0,0,0.3); transform: rotate(-1deg); }
+        .cue-card:nth-child(even) { transform: rotate(1deg); }
+        .cue-card:hover { transform: translateY(-5px) scale(1.02) rotate(0deg); box-shadow: 8px 8px 0px rgba(0,0,0,0.4); border-color: #9b2226; }
+        .cue-icon { font-size: 2rem; width: 45px; text-align: center; }
+        .cue-text { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        .cue-status { margin-left: auto; color: #888; font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: bold; border: 1px dashed #888; padding: 2px 6px;}
+        .cue-card.revealed { background: #9b2226; color: #fdf0d5; border-color: #590000; }
+        .cue-card.revealed .cue-status { color: #fca311; border-color: #fca311; }
+
+        /* The Imagination Switcher (Grammar Tuner) */
+        .toggle-switch { width: 140px; height: 54px; background: #050505; border-radius: 27px; position: relative; cursor: pointer; border: 2px solid #1c2541; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8); transition: all 0.3s;}
+        .toggle-knob { width: 46px; height: 46px; background: linear-gradient(to bottom, #2a3556, #1c2541); border-radius: 50%; position: absolute; left: 2px; top: 2px; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.2);}
+        .toggle-knob::after { content: ''; width: 12px; height: 12px; background: #050505; border-radius: 50%; }
+        .toggle-switch.active { border-color: #fca311; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8), 0 0 15px rgba(252,163,17,0.2); }
+        .toggle-switch.active .toggle-knob { transform: translateX(86px); background: linear-gradient(to bottom, #fca311, #d48a0d); }
+        .toggle-switch.active .toggle-knob::after { background: #9b2226; }
+
+        /* Vinyl Record Builders (Sentence Builder) */
+        .vinyl-blank { display: inline-block; min-width: 70px; height: 40px; border-bottom: 3px dashed #1c2541; margin: 0 6px; vertical-align: middle; text-align: center; font-family: 'Space Mono', monospace; font-weight: bold; color: #1c2541; transition: 0.3s; }
+        .vinyl-blank.filled { border-bottom: 3px solid #fca311; color: #fca311; text-shadow: 0 0 10px rgba(252,163,17,0.5); }
+        .vinyl-piece { background: #0b132b; color: #fdf0d5; padding: 10px 20px; border-radius: 30px; border: 2px solid #1c2541; cursor: pointer; transition: all 0.2s; font-weight: 800; font-family: 'Outfit', sans-serif; text-transform: uppercase; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+        .vinyl-piece:hover { background: #fca311; color: #050505; border-color: #fca311; transform: translateY(-4px); box-shadow: 0 8px 15px rgba(252,163,17,0.4); }
+        .vinyl-piece.used { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+        /* Flip Cards (Speaking) */
+        .flip-card { perspective: 1000px; cursor: pointer; width: 100%; height: 220px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 2px solid #1c2541; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3);}
+        .flip-card-front { background: linear-gradient(145deg, #0b132b, #050505); }
+        .flip-card-back { background: linear-gradient(145deg, #9b2226, #590000); color: #fdf0d5; transform: rotateY(180deg); border-color: #fca311; }
+
+        /* Animations */
+        .shake { animation: shake 0.4s both; border-color: #9b2226 !important; color: #9b2226 !important; box-shadow: 0 0 15px rgba(155,34,38,0.3) !important;}
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+
+        .confetti { position: absolute; width: 8px; height: 12px; opacity: 0; z-index: 10000; pointer-events: none; border-radius: 2px; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; } }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* Compact Typography */
+        h1.compact-title { font-size: 2.5rem; line-height: 1.1; margin-bottom: 0.75rem; letter-spacing: -0.01em;}
+        @media (min-width: 768px) { h1.compact-title { font-size: 3.5rem; margin-bottom: 1.5rem; } }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen relative">
+
+    <div class="stage-bg"></div>
+
+    <!-- ================= MAIN PANEL ================= -->
+    <main class="flex-1 flex flex-col relative z-10 w-full max-w-[1400px] mx-auto p-2 lg:p-4 pb-[100px]">
+        
+        <!-- THE RETRO TV CONTAINER -->
+        <div class="flex-1 rounded-3xl retro-tv border-[8px] lg:border-[16px] border-[#1a1a1a] overflow-y-auto hide-scroll flex flex-col allow-select shadow-tv relative" id="slides-container">
+            
+            <!-- WATERMARK -->
+            <div class="absolute bottom-6 right-8 z-0 text-white/5 font-black font-display text-4xl md:text-6xl tracking-widest pointer-events-none uppercase">
+                WOLFFY B1
+            </div>
+
+            <!-- SLIDE 01: INTRO -->
+            <section class="slide active">
+                <div class="flex justify-between items-start mb-6 w-full max-w-4xl mx-auto z-20">
+                    <div class="text-center w-full">
+                        <div class="bg-studio-gold/10 text-studio-gold border border-studio-gold/30 font-mono font-bold px-4 py-1.5 inline-block mb-4 text-xs uppercase tracking-widest rounded shadow-neon-gold">Masterclass • Volume B1</div>
+                        <h1 class="text-6xl md:text-8xl font-black font-display leading-tight text-white tracking-tighter mb-2 italic">Die With A <span class="text-studio-gold">Smile</span></h1>
+                        <p class="text-lg md:text-xl text-gray-400 font-bold tracking-widest uppercase font-mono">Lady Gaga & Bruno Mars</p>
+                    </div>
+                </div>
+                
+                <div class="border-y border-white/10 py-5 my-4 w-full max-w-3xl mx-auto z-20 glass-panel p-8 text-center">
+                    <p class="font-mono text-sm md:text-base text-gray-300 font-medium mb-3">> LEVEL_ <span class="text-white font-bold">A2 / B1 (Pre-Intermediate)</span></p>
+                    <p class="font-mono text-sm md:text-base text-gray-300 font-medium mb-3">> GRAMMAR_ <span class="text-studio-gold font-bold">Second Conditional</span></p>
+                    <p class="font-mono text-sm md:text-base text-gray-300 font-medium">> THEME_ <span class="text-white font-bold">The Apocalypse & Romance 🌍</span></p>
+                </div>
+
+                <div class="bg-[#050505] p-5 rounded-xl border border-studio-blue w-full max-w-3xl mx-auto text-center z-20 mt-4 shadow-inner">
+                    <p class="text-studio-gold font-bold text-xs mb-2 uppercase tracking-widest font-mono">System Instructions:</p>
+                    <p class="text-sm md:text-base text-gray-400">Navigate using the bottom console. <strong class="text-white">Double-click</strong> any English word to trigger the Smart Dict!</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 02: COVER ART -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 02 • The Record</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase tracking-wide italic">The Single (2024)</h1>
+                <div class="w-full max-w-sm rounded-full overflow-hidden shadow-[0_0_50px_rgba(252,163,17,0.2)] border-4 border-studio-gold bg-black flex items-center justify-center z-20 mx-auto transition-transform duration-500 hover:scale-105 aspect-square">
+                    <img src="https://cdn-images.dzcdn.net/images/cover/4bd5903f4ce8f2601916bfadb44efe8a/1900x1900-000000-80-0-0.jpg" alt="Single Cover" class="w-full h-full object-cover vinyl-spin">
+                </div>
+            </section>
+
+            <!-- SLIDE 03: VIBE CHECK -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 03 • Warm Up</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Apocalypse</h1>
+                <p class="text-base md:text-xl font-bold text-white mb-8 text-center z-20">Imagine the world is going to end tomorrow. What would you do today?</p>
+                
+                <div class="space-y-4 w-full max-w-3xl mx-auto options-group z-20" data-correct="any">
+                    <button class="w-full text-left glass-panel p-5 rounded-xl text-sm md:text-lg font-bold hover:border-studio-gold mcq-btn flex items-center gap-5" onclick="selectMCQ(this, 'correct', 'hub-track3')">
+                        <div class="w-10 h-10 bg-[#050505] rounded-full border border-studio-blue flex items-center justify-center text-lg shrink-0 font-mono text-studio-gold shadow-inner">01</div> Spend time with my family and friends.
+                    </button>
+                    <button class="w-full text-left glass-panel p-5 rounded-xl text-sm md:text-lg font-bold hover:border-studio-gold mcq-btn flex items-center gap-5" onclick="selectMCQ(this, 'correct', 'hub-track3')">
+                        <div class="w-10 h-10 bg-[#050505] rounded-full border border-studio-blue flex items-center justify-center text-lg shrink-0 font-mono text-studio-gold shadow-inner">02</div> Try to travel to a beautiful place.
+                    </button>
+                    <button class="w-full text-left glass-panel p-5 rounded-xl text-sm md:text-lg font-bold hover:border-studio-gold mcq-btn flex items-center gap-5" onclick="selectMCQ(this, 'correct', 'hub-track3')">
+                        <div class="w-10 h-10 bg-[#050505] rounded-full border border-studio-blue flex items-center justify-center text-lg shrink-0 font-mono text-studio-gold shadow-inner">03</div> Just go to sleep and ignore it.
+                    </button>
+                </div>
+                <div class="hidden mt-6 p-5 border-l-4 border-studio-gold bg-studio-gold/10 rounded w-full max-w-3xl mx-auto z-20 shadow-[0_0_15px_rgba(252,163,17,0.1)]" id="hub-track3">
+                    <p class="text-studio-gold text-[10px] mb-2 uppercase tracking-widest font-bold font-mono">Speaking Starter</p>
+                    <p class="text-white text-base md:text-xl font-bold font-display italic">"If the world was ending, I would..."</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 04: TRIVIA -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 04 • Trivia</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Did you know?</h1>
+                <div class="glass-panel p-8 md:p-14 rounded-2xl text-center max-w-3xl w-full relative z-20 border-t-4 border-studio-blue shadow-[0_0_30px_rgba(28,37,65,0.4)]">
+                    <div class="text-5xl mb-6">🌙</div>
+                    <p class="text-xl md:text-3xl font-bold leading-relaxed text-white mb-8 font-display italic">Bruno Mars invited Lady Gaga to his studio at midnight to listen to a rough idea of this song.</p>
+                    <p class="text-sm md:text-lg text-studio-gold font-mono bg-[#050505] p-5 rounded-xl border border-studio-blue inline-block shadow-inner">She loved it, and they finished writing it that exact same night!</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 05: VOCABULARY WARM UP -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 05 • Vocabulary</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Studio Session</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 z-20 text-center font-mono">Click the cue cards to reveal the lyrics' vocabulary.</p>
+                
+                <div class="flex flex-col gap-4 w-full max-w-3xl mx-auto z-20">
+                    <div class="cue-card" onclick="revealVocab(this, 'Smile', 'A happy expression on your face.', 'What makes you smile when you are sad?', 1)">
+                        <div class="cue-icon">🙂</div>
+                        <div class="cue-text">Encrypted_01</div>
+                        <div class="cue-status">[FLIP]</div>
+                    </div>
+                    <div class="cue-card" onclick="revealVocab(this, 'End', 'The final part of something; to finish.', 'Do you like movies with a happy or sad end?', 1)">
+                        <div class="cue-icon">🛑</div>
+                        <div class="cue-text">Encrypted_02</div>
+                        <div class="cue-status">[FLIP]</div>
+                    </div>
+                    <div class="cue-card" onclick="revealVocab(this, 'Hold', 'To carry or keep something in your arms.', 'Do you like it when people hold your hand?', 1)">
+                        <div class="cue-icon">🤝</div>
+                        <div class="cue-text">Encrypted_03</div>
+                        <div class="cue-status">[FLIP]</div>
+                    </div>
+                    <div class="cue-card" onclick="revealVocab(this, 'Next to you', 'Beside you; very close to you.', 'Who is sitting next to you right now?', 1)">
+                        <div class="cue-icon">🫂</div>
+                        <div class="cue-text">Encrypted_04</div>
+                        <div class="cue-status">[FLIP]</div>
+                    </div>
+                </div>
+
+                <div id="vocab-info-1" class="hidden mt-8 p-6 glass-panel w-full max-w-3xl mx-auto text-left z-20 border-l-4 border-studio-red">
+                    <h3 id="v-title-1" class="text-3xl font-black font-display text-studio-red mb-2 uppercase italic">Word</h3>
+                    <p id="v-def-1" class="text-white text-lg mb-3 font-sans">Definition</p>
+                    <p class="text-gray-400 text-sm font-bold font-mono">> <span id="v-q-1" class="text-white">Question</span></p>
+                </div>
+            </section>
+
+            <!-- SLIDE 06: THE VIDEO -->
+            <section class="slide h-full w-full">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-2 z-20 text-center font-mono">Track 06 • Playing</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Broadcast</h1>
+                <div class="w-full max-w-4xl mx-auto rounded-xl overflow-hidden border-8 border-studio-blue bg-black shadow-[0_0_40px_rgba(28,37,65,0.6)] relative aspect-video z-20">
+                    <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/kPa7bsKwL-c?rel=0" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div class="mt-6 p-4 bg-[#050505] border border-studio-blue rounded w-full max-w-4xl mx-auto text-center z-20 shadow-inner">
+                    <p class="text-gray-300 text-sm font-mono"><strong>Visual Check:</strong> Look at their clothes. Does this look like 2024 or 1970?</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 07: LISTENING CHECK -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 07 • Quiz</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Listening Check</h1>
+                <p class="text-lg md:text-2xl font-bold text-white mb-10 text-center z-20">In the chorus, what does he say he would do if the world was ending?</p>
+                
+                <div class="flex flex-col md:flex-row justify-center gap-6 z-20 w-full max-w-3xl mx-auto options-group">
+                    <button class="w-full md:w-1/2 glass-panel p-8 rounded-xl text-base md:text-xl font-bold hover:border-studio-gold transition-colors mcq-btn text-white font-display italic" onclick="selectMCQ(this, 'wrong')">
+                        A) He would cry and run away.
+                    </button>
+                    <button class="w-full md:w-1/2 glass-panel p-8 rounded-xl text-base md:text-xl font-bold hover:border-studio-gold transition-colors mcq-btn text-white font-display italic" onclick="selectMCQ(this, 'correct', 'listen-hub')">
+                        B) He would want to be next to her.
+                    </button>
+                </div>
+                <div id="listen-hub" class="hidden mt-10 p-6 border-l-4 border-studio-gold bg-studio-gold/10 font-bold text-white w-full max-w-3xl mx-auto text-center text-lg md:text-xl z-20 rounded shadow-[0_0_20px_rgba(252,163,17,0.2)] font-mono">
+                    > Correct! "If the world was ending, I'd wanna be next to you."
+                </div>
+            </section>
+
+            <!-- SLIDE 08: LYRICS 1 -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 08 • Reading</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Hook</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-8 z-20 text-center font-mono">Click the <span class="text-studio-gold font-bold">golden words</span> for Insights!</p>
+                
+                <div class="w-full max-w-3xl mx-auto flex-1 glass-panel rounded-2xl p-10 md:p-14 overflow-y-auto text-center z-20 flex flex-col justify-center border-l-4 border-l-studio-gold">
+                    <div class="space-y-8 text-2xl md:text-4xl font-black font-display text-white leading-tight uppercase tracking-wider">
+                        <p>If the world was <span class="lyric-highlight" onclick="openLyricInsight('ending')">ending</span></p>
+                        <p>I'd wanna be <span class="lyric-highlight" onclick="openLyricInsight('next')">next to you</span></p>
+                        <p>If the party was over</p>
+                        <p>And our time on Earth was through</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 09: LYRICS 2 -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 09 • Reading</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Promise</h1>
+                <div class="w-full max-w-3xl mx-auto flex-1 glass-panel rounded-2xl p-10 md:p-14 overflow-y-auto text-center z-20 flex flex-col justify-center border-l-4 border-l-studio-blue">
+                    <div class="space-y-8 text-2xl md:text-4xl font-black font-display text-white leading-tight uppercase tracking-wider">
+                        <p>I'd wanna <span class="lyric-highlight" onclick="openLyricInsight('hold')">hold</span> you just for a while</p>
+                        <p>And die with a <span class="lyric-highlight" onclick="openLyricInsight('smile')">smile</span></p>
+                        <p>If the world was ending</p>
+                        <p>I'd wanna be next to you</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 10: GRAMMAR INTRO -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 10 • Grammar</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Second Conditional</h1>
+                <p class="text-base md:text-lg text-gray-300 mb-8 text-center z-20">We use this to talk about imaginary, impossible, or unlikely situations.</p>
+                
+                <div class="flex flex-col md:flex-row gap-6 w-full max-w-4xl mx-auto z-20">
+                    <!-- Condition -->
+                    <div class="glass-panel p-8 rounded-xl flex-1 text-center border-t-4 border-studio-red">
+                        <p class="text-2xl font-black text-white font-display uppercase mb-2">Condition</p>
+                        <p class="text-xs text-studio-red font-mono uppercase mb-6 tracking-widest border border-studio-red/30 bg-studio-red/10 inline-block px-3 py-1 rounded-full">IF + Past</p>
+                        <p class="text-lg md:text-xl font-bold text-white mb-4 bg-[#050505] py-3 rounded-lg border border-white/5">"If the world <span class="text-studio-red">was</span> ending..."</p>
+                        <p class="text-sm text-gray-400 leading-relaxed font-sans">This is the imaginary situation. The world is NOT ending right now.</p>
+                    </div>
+                    <!-- Result -->
+                    <div class="glass-panel p-8 rounded-xl flex-1 text-center border-t-4 border-studio-blue">
+                        <p class="text-2xl font-black text-white font-display uppercase mb-2">Result</p>
+                        <p class="text-xs text-studio-blue font-mono uppercase mb-6 tracking-widest border border-studio-blue/30 bg-studio-blue/10 inline-block px-3 py-1 rounded-full">WOULD + Verb</p>
+                        <p class="text-lg md:text-xl font-bold text-white mb-4 bg-[#050505] py-3 rounded-lg border border-white/5">"I <span class="text-studio-blue">would want</span> to be next to you."</p>
+                        <p class="text-sm text-gray-400 leading-relaxed font-sans">This is what you would do in that imaginary situation.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 11: GRAMMAR SWITCHER -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 11 • Interactive</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Imagination Switch</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-10 text-center z-20">Use the studio switch to change reality into a dream.</p>
+                
+                <div class="glass-panel p-8 md:p-12 rounded-3xl w-full max-w-3xl mx-auto z-20 flex flex-col items-center shadow-2xl">
+                    
+                    <!-- Display Screen -->
+                    <div class="bg-[#050505] border-2 border-studio-blue w-full rounded-xl h-40 md:h-52 mb-10 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                        
+                        <!-- Reality Text -->
+                        <div id="text-reality" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 px-6 text-center">
+                            <p class="text-2xl md:text-4xl font-bold text-gray-400 font-display italic">I <span class="text-white border-b-2 border-gray-600">don't have</span> a million dollars.</p>
+                            <span class="text-[10px] md:text-xs text-gray-500 mt-6 font-mono uppercase tracking-widest bg-gray-900 px-3 py-1 rounded-full">(Fact: Real life right now)</span>
+                        </div>
+
+                        <!-- Imagination Text -->
+                        <div id="text-imagination" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 opacity-0 scale-90 pointer-events-none px-6 text-center">
+                            <p class="text-3xl md:text-5xl font-black text-white font-display italic">If I <span class="text-studio-gold border-b-2 border-studio-gold">had</span> a million dollars, I <span class="text-studio-gold border-b-2 border-studio-gold">would buy</span> a house!</p>
+                            <span class="text-[10px] md:text-xs text-studio-gold mt-6 font-mono font-bold uppercase tracking-widest bg-studio-gold/10 px-4 py-1 border border-studio-gold/30 rounded-full">(Imagination: A dream situation)</span>
+                        </div>
+                    </div>
+
+                    <!-- Fader -->
+                    <div class="w-full flex items-center justify-center gap-6 font-bold text-gray-500 font-mono text-sm uppercase">
+                        <span>Reality</span>
+                        <div id="mixer-track" class="toggle-switch" onclick="toggleMachine()">
+                            <div id="machine-knob" class="toggle-knob"></div>
+                        </div>
+                        <span class="text-studio-gold">Imagination</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 12: CATCH THE BUG -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 12 • Minigame</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Catch the Bug</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-10 text-center z-20 font-mono">Click the incorrect word to fix the Second Conditional.</p>
+                
+                <div class="text-3xl md:text-5xl font-black font-display glass-panel p-12 md:p-16 text-center text-white w-full max-w-4xl mx-auto z-20 uppercase tracking-widest border-t-4 border-studio-red italic">
+                    "If the world was ending, I <span id="bug-word" class="cursor-pointer border-b-4 border-dashed border-studio-red text-studio-red pb-1 transition-colors hover:bg-studio-red hover:text-white rounded px-3" onclick="fixBug()">will</span> want to be next to you."
+                </div>
+                
+                <div id="bug-input-container" class="hidden mt-10 flex-col items-center gap-4 w-full max-w-sm mx-auto z-20">
+                    <div class="flex gap-3 w-full">
+                        <input type="text" id="bug-input" class="flex-1 bg-[#050505] border-2 border-studio-blue rounded-xl px-4 py-3 text-xl font-bold text-white text-center focus:border-studio-gold outline-none uppercase font-mono" placeholder="Type fix">
+                        <button onclick="checkBug()" class="bg-studio-gold text-black font-black px-8 py-3 rounded-xl hover:bg-white transition-colors font-mono uppercase">FIX</button>
+                    </div>
+                </div>
+                
+                <div id="bug-hub" class="hidden mt-8 p-5 bg-emerald-500/10 border-l-4 border-emerald-500 font-bold text-emerald-500 w-full max-w-4xl mx-auto text-center text-lg md:text-xl z-20 rounded-r font-mono">
+                    > SYSTEM RESTORED: We use "would" for imaginary situations!
+                </div>
+            </section>
+
+            <!-- SLIDE 13: SENTENCE BUILDER (DROP THE BEAT) -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 13 • Minigame</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Drop the Beat</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-10 text-center z-20 font-mono">> Click the vinyl pieces to rebuild the chorus.</p>
+                
+                <div class="glass-panel p-10 md:p-14 text-center w-full max-w-4xl mx-auto z-20 relative">
+                    <div class="text-xl md:text-3xl font-bold mb-12 text-white flex flex-wrap justify-center items-center gap-y-6 font-display italic tracking-wide">
+                        "<span class="vinyl-blank" id="t-blank1" onclick="returnTape(1)"></span> 
+                         <span class="vinyl-blank" id="t-blank2" onclick="returnTape(2)"></span> 
+                         <span class="vinyl-blank" id="t-blank3" onclick="returnTape(3)"></span> 
+                         <span class="vinyl-blank" id="t-blank4" onclick="returnTape(4)"></span>
+                         <span class="vinyl-blank" id="t-blank5" onclick="returnTape(5)"></span>
+                         <span class="vinyl-blank" id="t-blank6" onclick="returnTape(6)"></span>"
+                    </div>
+                    <div class="flex gap-4 justify-center flex-wrap" id="tape-bank">
+                        <div class="vinyl-piece" onclick="fillTape(this, 'be')">be</div>
+                        <div class="vinyl-piece" onclick="fillTape(this, 'I\\'d')">I'd</div>
+                        <div class="vinyl-piece" onclick="fillTape(this, 'you')">you</div>
+                        <div class="vinyl-piece" onclick="fillTape(this, 'wanna')">wanna</div>
+                        <div class="vinyl-piece" onclick="fillTape(this, 'next')">next</div>
+                        <div class="vinyl-piece" onclick="fillTape(this, 'to')">to</div>
+                    </div>
+                </div>
+                <div id="tape-hub" class="hidden mt-8 p-5 bg-studio-gold/10 border-l-4 border-studio-gold text-white font-bold text-lg md:text-xl w-full max-w-4xl mx-auto text-center z-20 rounded-r font-mono">
+                    > "I'd wanna be next to you."
+                </div>
+            </section>
+
+            <!-- SLIDE 14: PRONUNCIATION STATION -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 14 • Speaking</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Pronunciation</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-10 text-center z-20 font-mono">Contractions & Slang in Pop Music.</p>
+                
+                <div class="glass-panel p-12 w-full max-w-5xl mx-auto text-center z-20 flex flex-col md:flex-row items-center justify-between gap-10 border-t-4 border-studio-blue">
+                    <div class="flex-1">
+                        <p class="text-sm md:text-lg font-bold text-gray-500 mb-3 uppercase font-mono">Written / Formal</p>
+                        <p class="text-3xl md:text-5xl font-black text-white uppercase font-display italic">"I would want to"</p>
+                    </div>
+                    <div class="text-5xl text-gray-600 hidden md:block">➡</div>
+                    <div class="flex-1 bg-[#050505] p-8 rounded-2xl border border-studio-blue/50 shadow-[0_0_20px_rgba(28,37,65,0.4)]">
+                        <p class="text-sm md:text-lg font-bold text-studio-blue mb-3 uppercase font-mono">Spoken / Slang</p>
+                        <p class="text-4xl md:text-6xl font-black font-display text-white uppercase mb-3 italic">I'd wanna</p>
+                        <p class="text-sm md:text-base text-gray-400 font-mono bg-[#111] inline-block px-4 py-1.5 rounded-full border border-[#262626]">/ aɪd ˈwɒnə /</p>
+                    </div>
+                </div>
+                <div class="mt-10 p-6 bg-[#050505] border border-[#1a1a1a] rounded-xl w-full max-w-5xl mx-auto text-center z-20">
+                    <p class="text-gray-300 text-base md:text-lg font-sans">Native speakers compress these words to speak faster and sound smoother.</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 15: SPEAKING (FLIP CARDS) -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 15 • Speaking</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Imagination Cards</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-10 text-center z-20 font-mono">Click the cards to reveal fun imaginary questions! Answer with "I would..."</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl mx-auto z-20">
+                    <!-- Card 1 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <h2 class="text-3xl md:text-4xl font-black font-display text-white italic">Superpower 🦸<br><span class="text-xs font-normal text-gray-500 mt-4 block font-mono uppercase tracking-widest">Click to reveal</span></h2>
+                            </div>
+                            <div class="flip-card-back p-8 flex-col">
+                                <p class="text-2xl md:text-3xl font-bold font-display italic leading-snug">If you could have one superpower, what would it be?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <h2 class="text-3xl md:text-4xl font-black font-display text-white italic">Travel ✈️<br><span class="text-xs font-normal text-gray-500 mt-4 block font-mono uppercase tracking-widest">Click to reveal</span></h2>
+                            </div>
+                            <div class="flip-card-back p-8 flex-col">
+                                <p class="text-2xl md:text-3xl font-bold font-display italic leading-snug">If you could travel anywhere right now, where would you go?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SLIDE 16: ROLEPLAY -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 16 • Roleplay</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">The Last Call</h1>
+                <p class="text-sm md:text-base text-gray-400 mb-10 text-center z-20 font-mono">The world is ending in 5 minutes! Call your best friend.</p>
+                
+                <div class="glass-panel p-10 md:p-16 w-full max-w-4xl mx-auto z-20 border-l-4 border-studio-red shadow-[0_0_30px_rgba(155,34,38,0.2)] text-center">
+                    <div class="mb-8">
+                        <div class="text-6xl animate-pulse mb-4">📱</div>
+                        <p class="text-studio-red font-bold text-sm uppercase tracking-widest font-mono">Incoming call...</p>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm uppercase tracking-widest mb-2 font-mono">Teacher says:</p>
+                    <p class="text-2xl md:text-4xl font-bold text-white italic mb-10 font-display tracking-wide leading-relaxed">"Hey! The news says the world is ending right now! What do you want to say?"</p>
+                    
+                    <p class="text-studio-gold font-bold text-sm uppercase tracking-widest mb-2 font-mono">Student says (use condition):</p>
+                    <p class="text-xl md:text-2xl font-bold text-gray-300 font-sans tracking-wide">"If the world was ending, I would..."</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 17: DEEP DIVE -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 17 • Deep Dive</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Discussion</h1>
+                <div class="glass-panel p-12 md:p-20 w-full max-w-5xl mx-auto text-center relative z-20 mt-4 border-t-2 border-studio-gold">
+                    <span class="text-7xl md:text-9xl text-studio-gold absolute top-4 left-6 opacity-20 font-display">"</span>
+                    <p class="text-3xl md:text-5xl font-black italic text-white leading-relaxed z-10 relative mt-4 font-display uppercase tracking-wide">I'd wanna hold you just for a while and die with a smile.</p>
+                    <span class="text-7xl md:text-9xl text-studio-gold absolute bottom-0 right-6 opacity-20 font-display">"</span>
+                </div>
+                <div class="mt-10 p-6 bg-[#050505] border border-[#1a1a1a] rounded-xl w-full max-w-5xl mx-auto text-center z-20 shadow-inner">
+                    <p class="text-gray-300 text-lg md:text-xl font-sans"><strong>Discuss:</strong> We don't know when the world will end. Is love the most important thing to focus on today?</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 18: SONG REVIEW -->
+            <section class="slide">
+                <h2 class="font-bold text-studio-gold tracking-widest uppercase text-xs mb-3 z-20 text-center font-mono">Track 18 • Review</h2>
+                <h1 class="compact-title font-black font-display text-white z-20 text-center uppercase italic">Rate the Song</h1>
+                <p class="text-base md:text-lg text-gray-400 mb-12 text-center z-20 font-mono">How many stars do you give "Die With A Smile"?</p>
+                
+                <div class="flex justify-center gap-4 md:gap-8 w-full max-w-4xl mx-auto mb-10 z-20">
+                    <button onclick="rateSong(this, 1)" class="star-btn text-6xl md:text-7xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-md">⭐</button>
+                    <button onclick="rateSong(this, 2)" class="star-btn text-6xl md:text-7xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-md">⭐</button>
+                    <button onclick="rateSong(this, 3)" class="star-btn text-6xl md:text-7xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-md">⭐</button>
+                    <button onclick="rateSong(this, 4)" class="star-btn text-6xl md:text-7xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-md">⭐</button>
+                    <button onclick="rateSong(this, 5)" class="star-btn text-6xl md:text-7xl opacity-30 hover:opacity-100 transition-all grayscale hover:grayscale-0 drop-shadow-md">⭐</button>
+                </div>
+                
+                <div id="review-hub" class="hidden mt-8 p-6 bg-studio-gold/10 border-l-4 border-studio-gold w-full max-w-4xl mx-auto text-left z-20 rounded-r-xl">
+                    <p class="text-white text-xl font-bold mb-2 font-display italic">You gave it <span id="star-count" class="text-studio-gold font-black text-3xl mx-2">X</span> stars!</p>
+                    <p class="text-gray-300 text-base md:text-lg font-mono">"I give this song <span class="text-studio-gold">___</span> stars because it is..." (romantic, beautiful, sad, sweet).</p>
+                </div>
+            </section>
+
+            <!-- SLIDE 19: PLATINUM RECORD -->
+            <section class="slide">
+                <div class="text-center z-20 flex flex-col items-center">
+                    <div class="w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-tr from-[#111] to-gray-500 shadow-[0_0_60px_rgba(252,163,17,0.3)] mb-10 flex items-center justify-center relative border-8 border-[#050505] vinyl-spin">
+                        <div class="w-16 h-16 rounded-full bg-black border-4 border-studio-gold flex items-center justify-center z-20"><div class="w-4 h-4 rounded-full bg-white"></div></div>
+                    </div>
+                    <span class="bg-studio-gold text-black font-bold px-6 py-2 rounded text-xs tracking-widest font-mono uppercase mb-6 shadow-md">MISSION COMPLETE</span>
+                    <h1 class="text-6xl md:text-8xl font-black font-display text-white mb-6 uppercase tracking-wider italic">Platinum Record</h1>
+                    <p class="text-lg md:text-xl font-medium text-gray-400 mb-12 max-w-2xl leading-relaxed">You survived the apocalypse and mastered the Second Conditional. Class dismissed!</p>
+                    <button onclick="goToSlide(0)" class="bg-[#050505] border-2 border-white text-white font-bold font-sans text-lg md:text-xl px-12 py-5 rounded hover:bg-white hover:text-black transition-colors uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.1)]">Restart Session</button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ================= FIXED BOTTOM DASHBOARD ================= -->
+    <footer class="fixed bottom-0 left-0 w-full h-[100px] lg:h-[120px] bg-[#050505] border-t-2 border-[#1a1a1a] shadow-[0_-10px_40px_rgba(0,0,0,0.9)] z-50 flex items-center justify-between px-4 lg:px-8">
+        
+        <!-- Left: Mini Tape -->
+        <div class="flex items-center gap-4 w-1/3">
+            <div class="relative w-14 h-14 lg:w-20 lg:h-20 shrink-0">
+                <div id="vinyl-record" class="absolute inset-0 rounded bg-black border-2 border-[#262626] flex items-center justify-center overflow-hidden vinyl-spin shadow-inner">
+                    <img src="https://cdn-images.dzcdn.net/images/cover/4bd5903f4ce8f2601916bfadb44efe8a/1900x1900-000000-80-0-0.jpg" class="w-full h-full object-cover opacity-90">
+                </div>
+            </div>
+            <div class="hidden lg:flex flex-col justify-center bg-[#080b12] border border-[#1a1a1a] rounded px-4 py-2 w-56 shadow-inner">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-studio-gold font-mono text-[10px] font-bold tracking-widest uppercase" id="lcd-text">TRK 01</span>
+                    <span class="text-gray-500 font-mono text-[9px]" id="lcd-time">0:00</span>
+                </div>
+                <div class="w-full bg-[#111] h-2 rounded-full overflow-hidden border border-[#222]">
+                    <div id="lcd-progress" class="h-full bg-studio-gold w-0 transition-all duration-300 shadow-[0_0_8px_#fca311]"></div>
+                </div>
+                <p class="text-white font-bold text-[11px] truncate font-sans uppercase mt-1.5">Die With A Smile</p>
+            </div>
+        </div>
+
+        <!-- Center: Playback Controls -->
+        <div class="flex flex-col items-center justify-center gap-1 w-1/3">
+            <div class="flex items-center gap-4 lg:gap-8">
+                <button onclick="prevSlide()" id="btn-prev" class="chunky-btn w-12 h-12 lg:w-14 lg:h-14 rounded disabled:opacity-50 flex items-center justify-center text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-backward-step text-sm"></i>
+                </button>
+                
+                <button onclick="togglePlayPause()" class="chunky-btn w-16 h-16 lg:w-20 lg:h-20 rounded flex items-center justify-center border-studio-gold text-studio-gold shadow-[0_0_20px_rgba(252,163,17,0.2)] bg-[#080b12]">
+                    <i id="icon-play" class="fa-solid fa-play ml-1 hidden text-xl"></i>
+                    <i id="icon-pause" class="fa-solid fa-pause text-xl"></i>
+                </button>
+
+                <button onclick="nextSlide()" id="btn-next" class="chunky-btn w-12 h-12 lg:w-14 lg:h-14 rounded disabled:opacity-50 flex items-center justify-center text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-forward-step text-sm"></i>
+                </button>
+            </div>
+            <span class="text-[8px] lg:text-[10px] text-gray-600 font-mono tracking-widest uppercase font-bold mt-2">WOLFFY OS v2.0</span>
+        </div>
+
+        <!-- Right: Tools -->
+        <div class="flex items-center justify-end gap-3 w-1/3">
+            <button onclick="toggleWhiteboard()" class="chunky-btn w-12 h-12 lg:w-14 lg:h-14 rounded flex items-center justify-center group" title="Teacher Terminal">
+                <i class="fa-solid fa-terminal text-gray-400 group-hover:text-studio-gold text-sm lg:text-base"></i>
+            </button>
+            <button onclick="toggleDictSidebar()" class="chunky-btn w-12 h-12 lg:w-14 lg:h-14 rounded flex items-center justify-center group" title="Smart Dictionary">
+                <i class="fa-solid fa-book text-gray-400 group-hover:text-studio-gold text-sm lg:text-base"></i>
+            </button>
+            <button onclick="toggleFullScreen()" class="chunky-btn w-12 h-12 lg:w-14 lg:h-14 rounded hidden md:flex items-center justify-center group" title="Fullscreen">
+                <i class="fa-solid fa-expand text-gray-400 group-hover:text-studio-gold text-sm lg:text-base"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ================= SMART DICT (Right Panel) ================= -->
+    <aside id="dictPanel" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-[#050505] border-l-2 border-[#1a1a1a] text-white z-[60] transform translate-x-full transition-transform duration-500 flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.9)] pb-[120px]">
+        <div class="p-6 border-b border-[#1a1a1a] flex justify-between items-center bg-[#080b12]">
+            <h2 class="text-xl lg:text-2xl font-black font-display text-white flex items-center gap-3 uppercase italic">
+                <i class="fa-solid fa-book text-studio-gold"></i> DICTIONARY
+            </h2>
+            <button onclick="toggleDictSidebar(false)" class="text-gray-500 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-8 flex-1 overflow-y-auto hide-scroll" id="dict-content">
+            <div class="flex flex-col items-center justify-center h-full text-center opacity-50">
+                <i class="fa-solid fa-arrow-pointer text-5xl mb-6 text-studio-gold"></i>
+                <p class="text-base font-sans font-bold">Double-click any English word to translate.</p>
+                <input type="text" class="mt-8 bg-[#000] border border-[#262626] rounded px-4 py-3 w-full text-center outline-none focus:border-studio-gold text-white font-mono text-sm" placeholder="> Type word + Enter" onkeypress="if(event.key === 'Enter') fetchDict(this.value)">
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= TEACHER TOOLS (Left Panel) ================= -->
+    <aside id="whiteboardPanel" class="fixed top-0 left-0 h-full w-full md:w-[450px] bg-[#050505] border-r-2 border-[#1a1a1a] text-white z-[60] transform -translate-x-full transition-transform duration-500 flex flex-col shadow-[20px_0_50px_rgba(0,0,0,0.9)] pb-[120px]">
+        <div class="p-6 border-b border-[#1a1a1a] flex justify-between items-center bg-[#080b12]">
+            <h2 class="text-xl lg:text-2xl font-black font-display text-gray-300 uppercase tracking-widest italic">Teacher Terminal</h2>
+            <button onclick="toggleWhiteboard(false)" class="text-gray-500 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="p-6 border-b border-[#1a1a1a] bg-[#000]">
+            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-3 font-mono">> Praise Drops</span>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="triggerPraise('ROCK ON! 🤘', 'Flawless execution.')" class="border border-studio-gold text-studio-gold font-bold py-2.5 rounded text-xs hover:bg-studio-gold hover:text-black transition-colors font-mono">ROCK ON!</button>
+                <button onclick="triggerPraise('AMAZING! ✨', 'Target neutralized.')" class="border border-white text-white font-bold py-2.5 rounded text-xs hover:bg-white hover:text-black transition-colors font-mono">AMAZING!</button>
+            </div>
+        </div>
+
+        <div class="flex-1 p-6 bg-[#050505]">
+            <textarea id="teacher-notepad" class="w-full h-full bg-transparent text-gray-300 text-base font-mono outline-none resize-none leading-relaxed placeholder:text-gray-700" placeholder="> Awaiting input... write notes here..."></textarea>
+        </div>
+    </aside>
+
+    <!-- ================= PRAISE OVERLAY ================= -->
+    <div id="praise-overlay" class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 bg-[#050505]/90 backdrop-blur-sm">
+        <div id="praise-card" class="bg-[#080b12] border-2 border-studio-gold p-12 md:p-20 rounded-2xl text-center transform scale-50 transition-all duration-500 shadow-[0_0_50px_rgba(252,163,17,0.3)] flex flex-col items-center">
+            <h1 id="praise-main" class="text-5xl md:text-7xl font-black font-display text-white mb-6 tracking-tight uppercase italic">ROCK ON!</h1>
+            <p id="praise-sub" class="text-sm md:text-base text-black bg-studio-gold px-4 py-2 font-bold font-mono uppercase tracking-widest rounded">Flawless execution.</p>
+        </div>
+    </div>
+
+    <!-- ================= LYRIC INSIGHTS OVERLAY ================= -->
+    <div id="lyric-insight-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#050505]/90 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div id="lyric-insight-card" class="bg-[#080b12] border border-[#262626] rounded-2xl p-8 lg:p-12 max-w-2xl w-full shadow-[0_0_40px_rgba(252,163,17,0.15)] transform scale-95 transition-transform duration-300 relative">
+            <button onclick="closeLyricInsight()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors bg-[#111] border border-[#333] w-10 h-10 rounded flex items-center justify-center font-mono text-sm hover:bg-studio-red hover:border-studio-red hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="mb-4"><span class="px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-black bg-studio-gold font-mono">Insight</span></div>
+            <h2 id="insight-title" class="text-3xl font-black font-display text-white mb-4 uppercase italic">Title</h2>
+            <p id="insight-explanation" class="text-base text-gray-300 leading-relaxed mb-8 border-l-2 border-studio-gold pl-4 bg-[#050505] py-3 pr-3 rounded-r font-sans">Exp</p>
+            <div class="bg-[#111] p-6 rounded border border-[#262626]">
+                <p id="insight-question" class="text-base font-bold text-studio-gold mb-4 font-mono">> Question?</p>
+                <div id="insight-options" class="flex flex-col gap-3"></div>
+                <div id="insight-feedback" class="hidden mt-6 text-center text-emerald-500 font-black text-lg animate-pulse font-display uppercase tracking-widest italic">Accepted! 🤘</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let isPlaying = true;
+
+        function init() { updateUI(); }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide++;
+                slides[currentSlide].classList.add('active');
+                updateUI();
+                if(currentSlide === totalSlides - 1) shootConfetti();
+                scrollToTop();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide--;
+                slides[currentSlide].classList.add('active');
+                updateUI();
+                scrollToTop();
+            }
+        }
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            updateUI();
+            scrollToTop();
+        }
+
+        function scrollToTop() {
+            const screen = document.getElementById('slides-container');
+            if(screen) screen.scrollTop = 0;
+        }
+
+        function updateUI() {
+            document.getElementById('btn-prev').disabled = currentSlide === 0;
+            document.getElementById('btn-next').disabled = currentSlide === totalSlides - 1;
+            document.getElementById('lcd-text').innerText = `TRK ${(currentSlide + 1).toString().padStart(2, '0')}`;
+            
+            const progress = totalSlides > 1 ? (currentSlide / (totalSlides - 1)) * 100 : 0;
+            document.getElementById('lcd-progress').style.width = `${progress}%`;
+            
+            const totalSecs = 186; // 3:06
+            const curSecs = Math.floor((progress / 100) * totalSecs);
+            document.getElementById('lcd-time').innerText = `${Math.floor(curSecs/60)}:${(curSecs%60).toString().padStart(2,'0')}`;
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            document.getElementById('icon-play').classList.toggle('hidden', isPlaying);
+            document.getElementById('icon-pause').classList.toggle('hidden', !isPlaying);
+            const vinyl = document.getElementById('vinyl-record');
+            if(vinyl) vinyl.classList.toggle('vinyl-paused', !isPlaying);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e));
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        function toggleWhiteboard(forceState) {
+            const b = document.getElementById('whiteboardPanel');
+            if (forceState === false) b.classList.add('-translate-x-full');
+            else b.classList.toggle('-translate-x-full');
+        }
+
+        function toggleDictSidebar(forceState) {
+            const p = document.getElementById('dictPanel');
+            if (forceState === false) p.classList.add('translate-x-full');
+            else if (forceState === true) p.classList.remove('translate-x-full');
+            else p.classList.toggle('translate-x-full');
+        }
+
+        // Smart Dict API
+        document.addEventListener('dblclick', async (e) => {
+            if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const sel = window.getSelection().toString().trim();
+            if(sel && /^[A-Za-z]+$/.test(sel)) fetchDict(sel.toLowerCase());
+        });
+
+        async function fetchDict(word) {
+            if(!word) return;
+            toggleDictSidebar(true);
+            const content = document.getElementById('dict-content');
+            content.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-studio-gold"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i><p class="font-mono text-sm">Searching Database...</p></div>`;
+            try {
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                const data = await res.json();
+                if(data.title) {
+                    content.innerHTML = `<div class="mt-8 text-center"><h3 class="text-3xl font-black text-white font-display uppercase italic">${word}</h3><p class="text-gray-500 mt-2 font-mono text-sm">> Not found.</p></div><input type="text" class="mt-6 bg-[#000] border border-[#262626] rounded px-4 py-3 w-full outline-none text-white focus:border-studio-gold font-mono text-sm" placeholder="> Search another..." onkeypress="if(event.key === 'Enter') fetchDict(this.value)">`;
+                    return;
+                }
+                const entry = data[0];
+                const def = entry.meanings[0].definitions[0].definition;
+                content.innerHTML = `
+                    <div class="mt-4">
+                        <h3 class="text-3xl font-black text-studio-gold uppercase font-display italic">${entry.word}</h3>
+                        <p class="text-gray-500 mt-1 font-mono text-sm">> ${entry.meanings[0].partOfSpeech}</p>
+                        <div class="mt-6 p-5 bg-[#000] rounded border border-[#262626]"><p class="text-white text-base leading-relaxed font-sans">${def}</p></div>
+                    </div>
+                    <input type="text" class="mt-8 bg-[#000] border border-[#262626] rounded px-4 py-3 w-full outline-none text-white focus:border-studio-gold font-mono text-sm" placeholder="> Search another..." onkeypress="if(event.key === 'Enter') fetchDict(this.value)">
+                `;
+            } catch(err) { content.innerHTML = `<p class="text-studio-red mt-8 text-center font-mono text-sm">> Error fetching data.</p>`; }
+        }
+
+        // MCQ
+        function selectMCQ(btn, type, hubId) {
+            const group = btn.closest('.options-group');
+            group.querySelectorAll('.mcq-btn').forEach(b => { b.classList.remove('border-studio-gold', 'border-studio-red', 'bg-[#1c2541]'); });
+            
+            if(type === 'correct' || type === 'any') { 
+                btn.classList.add('border-studio-gold', 'bg-[#1c2541]'); 
+                if(hubId) document.getElementById(hubId).classList.remove('hidden'); 
+                shootConfetti(); 
+            }
+            else { btn.classList.add('shake', 'border-studio-red'); setTimeout(() => btn.classList.remove('shake', 'border-studio-red'), 400); }
+        }
+
+        // Cue Cards (Vocab)
+        function revealVocab(el, english, def, q, stageId) {
+            if(!el.classList.contains('revealed')) {
+                el.classList.add('revealed');
+                el.querySelector('.cue-text').innerText = english;
+                el.querySelector('.cue-status').innerText = '[REVEALED]';
+            }
+            const infoPanel = document.getElementById('vocab-info-' + stageId);
+            if(infoPanel) {
+                infoPanel.classList.remove('hidden');
+                document.getElementById('v-title-' + stageId).innerText = english;
+                document.getElementById('v-def-' + stageId).innerText = def;
+                document.getElementById('v-q-' + stageId).innerText = q;
+            }
+        }
+
+        // Tuner (Grammar Mixer)
+        let machineActive = false;
+        function toggleMachine() {
+            machineActive = !machineActive;
+            const track = document.querySelector('.toggle-switch');
+            const txtNormal = document.getElementById('text-reality');
+            const txtPower = document.getElementById('text-imagination');
+
+            if(machineActive) {
+                track.classList.add('active');
+                txtNormal.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+                txtPower.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                shootConfetti();
+            } else {
+                track.classList.remove('active');
+                txtNormal.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                txtPower.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+            }
+        }
+
+        // Catch the Bug
+        function fixBug() {
+            const w = document.getElementById('bug-word');
+            w.classList.remove('border-studio-red', 'text-studio-red', 'hover:bg-studio-red', 'hover:text-white');
+            w.classList.add('bg-white', 'text-black', 'border-transparent');
+            document.getElementById('bug-input-container').classList.remove('hidden');
+            document.getElementById('bug-input').focus();
+        }
+        function checkBug() {
+            const v = document.getElementById('bug-input').value.toLowerCase().trim();
+            if(v === 'would') {
+                document.getElementById('bug-input-container').classList.add('hidden');
+                const w = document.getElementById('bug-word');
+                w.innerText = 'WOULD'; w.className = 'text-studio-blue font-black border-b-2 border-studio-blue pb-1';
+                document.getElementById('bug-hub').classList.remove('hidden');
+                shootConfetti();
+            } else {
+                const i = document.getElementById('bug-input');
+                i.classList.add('shake', 'border-[#9b2226]');
+                setTimeout(() => i.classList.remove('shake', 'border-[#9b2226]'), 400);
+            }
+        }
+
+        // Drop the Beat (Sentence Builder)
+        let activeT = 1; const expectedT = {1:"I'd", 2:"wanna", 3:"be", 4:"next", 5:"to", 6:"you"};
+        function fillTape(btn, word) {
+            if(activeT > 6) return;
+            if(expectedT[activeT].toLowerCase() === word.toLowerCase()) {
+                const b = document.getElementById(`t-blank${activeT}`);
+                if(b) { b.innerText = word; b.classList.add('filled'); }
+                btn.classList.add('used'); activeT++;
+                if(activeT > 6) { document.getElementById('tape-hub').classList.remove('hidden'); shootConfetti(); }
+            } else { btn.classList.add('shake', 'border-studio-red'); setTimeout(()=>btn.classList.remove('shake', 'border-studio-red'),400); }
+        }
+        function returnTape(n) {
+            const b = document.getElementById(`t-blank${n}`); 
+            if(!b) return;
+            const w = b.innerText; if(!w) return;
+            b.innerText = ""; b.classList.remove('filled'); 
+            document.querySelectorAll('.vinyl-piece').forEach(p => { if(p.innerText.toLowerCase() === w.toLowerCase()) p.classList.remove('used'); });
+            activeT = n; document.getElementById('tape-hub').classList.add('hidden');
+        }
+
+        // Song Review
+        function rateSong(btn, stars) {
+            const allStars = document.querySelectorAll('.star-btn');
+            allStars.forEach((star, index) => {
+                if(index < stars) {
+                    star.classList.remove('opacity-30', 'grayscale');
+                    star.classList.add('opacity-100', 'drop-shadow-[0_0_15px_rgba(252,163,17,0.8)]');
+                } else {
+                    star.classList.add('opacity-30', 'grayscale');
+                    star.classList.remove('opacity-100', 'drop-shadow-[0_0_15px_rgba(252,163,17,0.8)]');
+                }
+            });
+            document.getElementById('star-count').innerText = stars;
+            document.getElementById('review-hub').classList.remove('hidden');
+            shootConfetti();
+        }
+
+        // Lyric Insights
+        function openLyricInsight(k) {
+            const data = {
+                'ending': {t:'Ending', e:'The final part. Coming to a finish.', q:'What would be a good ending for a movie?', o:['A happy ending.', 'A mysterious ending.']},
+                'next': {t:'Next to you', e:'Beside you; very close to you.', q:'Who is sitting next to you right now?', o:['No one.', 'My friend.']},
+                'hold': {t:'Hold', e:'To keep something or someone in your arms.', q:'Do you like it when people hold your hand?', o:['Yes.', 'No, not really.']},
+                'smile': {t:'Smile', e:'A happy expression on your face.', q:'What makes you smile when you are sad?', o:['Music.', 'Good food.']}
+            }[k];
+            if(!data) return;
+            document.getElementById('insight-title').innerText=data.t; document.getElementById('insight-explanation').innerText=data.e; document.getElementById('insight-question').innerText=data.q;
+            const con = document.getElementById('insight-options'); con.innerHTML='';
+            data.o.forEach(o => { const b=document.createElement('button'); b.className='bg-[#050505] p-3 rounded-lg text-left font-bold text-base hover:bg-[#111] hover:text-white transition-colors border border-[#262626] text-gray-300 font-sans'; b.innerText=o; b.onclick=()=>document.getElementById('insight-feedback').classList.remove('hidden'); con.appendChild(b); });
+            document.getElementById('insight-feedback').classList.add('hidden');
+            const overlay = document.getElementById('lyric-insight-overlay');
+            const card = document.getElementById('lyric-insight-card');
+            overlay.classList.remove('opacity-0','pointer-events-none');
+            setTimeout(() => card.classList.replace('scale-95', 'scale-100'), 50);
+        }
+
+        function closeLyricInsight() { 
+            const overlay = document.getElementById('lyric-insight-overlay');
+            const card = document.getElementById('lyric-insight-card');
+            card.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => overlay.classList.add('opacity-0', 'pointer-events-none'), 200);
+        }
+
+        // Praise Overlay
+        function triggerPraise(main, sub) {
+            toggleWhiteboard(false);
+            const overlay = document.getElementById('praise-overlay');
+            const card = document.getElementById('praise-card');
+            document.getElementById('praise-main').innerText = main;
+            document.getElementById('praise-sub').innerText = sub;
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => card.classList.replace('scale-50', 'scale-100'), 50);
+            shootConfetti();
+            setTimeout(() => { card.classList.replace('scale-100', 'scale-50'); overlay.classList.add('opacity-0', 'pointer-events-none'); }, 2500); 
+        }
+
+        function shootConfetti() {
+            const colors = ['#fca311', '#ffffff', '#9b2226'];
+            for(let i=0; i<60; i++) {
+                const c = document.createElement('div'); c.className='confetti rounded-sm';
+                c.style.left = Math.random()*100+'vw'; c.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                c.style.animation = `fall ${Math.random()*3+2}s linear forwards`;
+                document.body.appendChild(c); setTimeout(()=>c.remove(), 4000);
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
